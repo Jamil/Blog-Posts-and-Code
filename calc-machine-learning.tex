@@ -1,0 +1,127 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{listings}
+
+
+\lstset{breaklines=true}
+
+
+% Text layout
+\topmargin 0.0cm
+\oddsidemargin 0.5cm
+\evensidemargin 0.5cm
+\textwidth 16cm 
+\textheight 21cm
+
+\begin{document}
+% Leave date blank
+\date{}
+
+{\Large
+\textbf{The Hessian to Widrow-Hoff: Calculus and Machine Learning}
+}
+
+\section{Introduction}
+Optimization problems are an integral part of both calculus and computer science, and they can range from the extremely trivial to the unimaginably complicated. Here I'll focus on somewhere in-between; on a specific set of problems that have practical applications in machine learning and some other issues we might face. I'm going to use a simple machine learning algorithm as an example to walk through this problem, which I've adapted from Stanford's excellent CS229 course. It turns out it's a great fit for what I want to talk about and try to implement. There'll be a bit of an introduction to linear regression, and then we'll slowly work our way toward the calculus, with a decent conceptual basis to work from.
+
+\section{LMS Linear Regression}
+So here's the task: we want to make a guess on the price of a given house in Manhattan. We, of course, know some things about that house, such as the number of bedrooms, the number of bathrooms, and the square footage. What we don't know is the actual selling price of the house. So we need to form some model in order to best approximate this value, maybe based on the selling price of houses in the area. These are called training examples – values we, as the programmer or user, input into the model. The model should then adjust its parameters accordingly, and, when given the properties of our house, spit out a value ("hypothesis") which corresponds to the expected selling price. The simplest model to use is linear regression; with which the expression for the hypothesis would be as follows:
+
+\begin{equation}
+h = \theta_{0} + \sum_{i=1}^{n} x_{i} \theta_{i}
+\end{equation}
+
+where the \(\theta_{i}\) are the parameters of our \(n\)-parameter model, and the \(x_{i}\) are the inputs. \(h\) is then a function of our \(x_{i}\). Noting that we let \(x_{0} = 1\) so that we can get a 'DC' value \( \theta_{0} \), we can express this as:
+
+\begin{equation}
+h( \left( \begin{array}{cccc} x_{1} & x_{2} & \hdots & x_{n} \end{array} \right) ) = \left( \begin{array}{cccc} x_{0} & x_{1} & \hdots & x_{n} \end{array} \right) \left( \begin{array}{ccc} \theta_{0}\cr \theta_{1}\cr \theta_{2}\cr \hdots\cr \theta_{n} \end{array} \right)
+\end{equation}
+
+Or, more concisely, using vectors \(\textbf{x}\) and \(\theta\):
+\begin{equation}
+h(\textbf{x}) = \textbf{x}\theta^{T}
+\end{equation}
+So assuming we have some good values for \(\theta\), we should be able to form a reasonably good approximation of our house price. The problem, of course, is finding these \(\theta_{i}\) values!
+
+Our training examples, to find these \(\theta_{i}\), are denoted \((\textbf{x}^{j}, y^{j})\). The \(j\)s do not denote exponentiation, but rather are indices of the training examples (i.e. the first training example is \((\textbf{x}^{0}, y^{0})\), the second \((\textbf{x}^{1}, y^{1})\), etc. For these training examples, our goal is to minimize the difference between our hypotheses \(h(\textbf{x}^{j})\) and the \(y^{j}\) we are given. We can define an error function, \(J(\theta)\), for one training example as follows, assuming we're using least mean squares (LMS) regression:
+
+\begin{equation}
+J_{j}(\theta) = \frac{1}{2} (y^{j} - h(\textbf{x}^{j}))^{2} = \frac{1}{2} (y^{j} - \textbf{x}^{j}\theta^{T})^2
+\end{equation}
+
+\(\hdots\) and for \(m\) training examples, just the sum of the individual errors:
+
+\begin{equation}
+J(\theta) = \frac{1}{2} \sum_{j=1}^{m} (y^{j} - h(\textbf{x}^{j}))^{2}
+\end{equation}
+
+We'll focus on just the first one for now; with just one training example. Our goal here is to minimize the difference between the actual value and our hypothesis, by modifying the values of \(\theta\). Essentially, we want to minimize \(J_{j}(\theta)\). Now here comes a bit of calculus - remember how to optimize a function? Yeah, pretty simple, just take the derivative and set it to zero. Sounds simple enough, but of course, we have multiple \(\theta_{i}\), and so we need to minimize the error for each \(\theta_{i}\).
+
+\section{The Calculus}
+Now that the context is set, it's time for the calculus interlude. I'll just do a brief overview, but I'm assuming you all know how to find the local maxima and minima of a function \(f : \mathbb{R} \rightarrow \mathbb{R} \). If \(x\) is your dependent variable, just take \(\frac{\mathrm{d}f}{\mathrm{d}x} = 0\) and solve for \(x\). To determine whether these values correspond to maxima or minima, we take \(\frac{\mathrm{d}^{2}f}{\mathrm{d}x^{2}}\) and find how the concavity changes at the point we're interested in.
+
+The situation gets a bit more complicated when we have a function \(f : \mathbb{R}^{n} \rightarrow \mathbb{R} \). Firstly, we can't just take a single derivative; we have multiple partial derivatives -; multiple variables we need to optimize for. So instead of a single expression, we get a vector \( \langle \frac{\partial f}{\partial x_{1}} , \frac{\partial f}{\partial x_{2}}, \hdots , \frac{\partial f}{\partial x_{n}} \rangle \). This is known as the <strong>gradient</strong>, and it indicates the direction of greatest increase of the function. A more concise notation can be acheived using the del (\(\nabla\)) operator, where \(\nabla = \langle \frac{\partial}{\partial x_{1}} , \frac{\partial}{\partial x_{2}}, \hdots , \frac{\partial}{\partial x_{n}} \rangle \), and so we can express the gradient of a function \(f\) as \(\nabla f\).
+
+Setting the gradient to zero and solving for your variables will give you the points at which the change in \(f\) is zero; i.e. at the local maxima or minima. Actually, that isn't quite true. You don't necessarily have a maximum or minimum where the gradient is zero; you can have saddle points where the function doesn't &lsquo;change' but is also not at its highest or lowest in its neighbourhood. 
+
+So how do we know if a critical point (a point where \(\nabla f = 0\)) is a local maximum, minimum, or saddle point? Here it gets a bit more complicated. Just as we don't have one singular derivative, we don't have one second derivative. In fact, for \(n\) variables in \(f\), we have \(n^{2}\) second derivatives! This becomes apparent once you realize what we're doing is taking the gradient of each element in the gradient vector. We put these values into what is called a Hessian matrix, as follows:
+
+\begin{equation}
+Hf = \begin{bmatrix} \frac{\partial^{2}f}{\partial x_{1}^{2}} & \frac{\partial^{2}f}{\partial x_{1} \partial x_{2}} & \dots & \frac{\partial^{2}f}{\partial x_{1} \partial x_{n}} \cr \frac{\partial^{2}f}{\partial x_{2} \partial x_{1}} & \frac{\partial^{2}f}{\partial x_{2}^{2}} & \dots & \frac{\partial^{2}f}{\partial x_{2} \partial x_{n}} \cr \vdots & \vdots & \ddots & \vdots \cr \frac{\partial^{2}f}{\partial x_{n} \partial x_{1}} & \frac{\partial^{2}f}{\partial x_{n} \partial x_{2}} & \dots & \frac{\partial^{2}f}{\partial x_{n}^{2}} \cr \end{bmatrix}
+\end{equation}
+
+The determinant of this function, \(|\mathrm{det}(Hf)|\), can give us information on the classification of the critical point. We'll focus on functions \(f : \mathbb{R}^{2} \rightarrow \mathbb{R} \) in this discussion. Our determinant is then \( \frac{\partial^{2}f}{\partial x^{2}} \frac{\partial^{2}f}{\partial y^{2}} - (\frac{\partial^{2}f}{\partial x \partial y})^{2} \), and we can state the following conditions to classify the point:
+
+\begin{enumerate}
+  \item If \(|\mathrm{det}(Hf)| > 0\) and \(\frac{\partial^{2}f}{\partial x^{2}} > 0\), the point is a local minimum
+  \item Else if \(|\mathrm{det}(Hf)| > 0\) and \(\frac{\partial^{2}f}{\partial x^{2}} < 0\), the point is a local minimum
+  \item Else if \(|\mathrm{det}(Hf)| < 0\), the point is a saddle point
+  \item Else, this test is inconclusive.
+\end{enumerate}
+
+\section{Deriving Widrow-Hoff}
+
+So now we know how to find the local maxima and minima of a multivariable function! Returning to our exploration of linear regression, how exactly does this help us? The answer is... not much. We're dealing with a numerical, not analytical, question, and it doesn't necessarily help to have a deep knowledge of what a Hessian matrix is, or how to classify a critical point. In LMS linear regression, we conveniently only have one critical point; a local minimum. We just need to find this point.
+
+If we 'follow' the gradient until we reach a point where the gradient is zero, we are, to abuse terms, 'ascending' the function until we reach a peak. If we follow the negative gradient, we should reach a local minimum. The algorithm which accomplishes this feat is called the \textit{gradient descent} algorithm, and it is derived as follows:
+
+\textbf{Recall}:
+\begin{equation}
+J(\theta) = \frac{1}{2} (y - h(\textbf{x}))^{2}
+\end{equation}
+
+\begin{equation}
+\begin{align*} \cr \frac{\partial}{\partial \theta_{j}} J(\theta) &= \frac{1}{2} \frac{\partial}{\partial \theta_{j}} (y - h(\textbf{x}))^{2} \cr &= \frac{1}{2} \cdot 2 \cdot (y - h(\textbf{x})) \frac{\partial}{\partial \theta_{j}} (y - h(\textbf{x})) \cr &= (y - h(\textbf{x})) \frac{\partial}{\partial \theta_{j}} \sum_{i=0}^{n} (y - \theta_{i}x_{i}) \cr &= (y - h(\textbf{x})) x_{j} \end{align*}
+\end{equation}
+
+It seems intuitive that to get a value for \( \theta \) that is closer to the local minimum, we should adjust our values such that it "follows" the negative of the gradient; i.e.
+
+\begin{equation}
+\theta_{j} := \theta_{j} - \nabla_{\theta_{j}} J(\theta)
+\end{equation}
+
+And so we get the \textbf{Widrow-Hoff learning rule}
+
+\begin{equation}
+\theta_{j} := \theta_{j} - (y - h(\textbf{x})) x_{j}
+\end{equation}
+
+We adjust our \(\theta\) value by adding to it the negative of the gradient we derived above, which brings it closer and closer to the local minimum -; until the difference between the previous and new values of \(\theta_{j}\) tends to zero (when the term converges). We can adjust the rate of descent by adding a parameter \(\alpha\);
+
+\begin{equation}
+\theta_{j} := \theta_{j} - \alpha(y - h(\textbf{x})) x_{j}
+\end{equation}
+
+Which is known as the learning rate. For multiple training examples, we simply modify our update rule to be
+
+\begin{equation}
+\theta_{j} := \theta_{j} - \alpha \sum_{i=1}^{m} (y^{i} - h(\textbf{x}^{i})) x_{j}^{i}
+\end{equation}
+
+And repeat until convergence. This is known as /textbf{batch gradient descent}.
+
+So we've gone from a practical problem, to an interlude of calculus, to a practical solution. And this is just the start of the many machine learning techniques; you can use locally weighted regression (LOWESS), or local regression with \textit{k}-means clustering, or move toward unsupervised learning algorithms. It's an amazing field, and Andrew Ng's CS229 course (from which I've adapted the machine learning part of this post - not the calculus part) is a great start.
+
+\end{document}

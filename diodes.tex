@@ -1,0 +1,69 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{listings}
+
+
+\lstset{breaklines=true}
+
+
+% Text layout
+\topmargin 0.0cm
+\oddsidemargin 0.5cm
+\evensidemargin 0.5cm
+\textwidth 16cm 
+\textheight 21cm
+
+\begin{document}
+% Leave date blank
+\date{}
+
+{\Large
+\textbf{Iterative Analysis of a Simple Diode Circuit}}
+
+Based on Example 4.4 from Microelectronics (Sedra)
+
+\section{Introduction}
+Consider a DC voltage source, in series with a diode and a resistor. We need to find a diode current and voltage such that both the diode equation (with the exponential model) and Kirchhoff's Laws are not violated. We can do this by successively finding more accurate values for the diode voltage \(V_{D}\) and diode current \(i_{D}\). From Kirchhoff's Voltage Law:
+
+\begin{equation}
+I_{D} = \frac{V_{DD} - V_{D}}{R} 
+\end{equation}
+
+The iteration can begin with an assumed value for \(V_{D}\), which is dependent on the diode itself. If we know that the diode has, say, a current of 1 mA at 0.7 V, we might choose 0.7 V as our starting point. After assuming a value for \(V_{D}\), we get a value for \(I_{D}\), which we can use in the diode equation:
+
+\begin{align*} V_{2} - V_{1} &= 2.3 \cdot V_{T} \mathrm{log} \frac{I_{2}}{I_{1}} \cr V_{2} &= V_{1} + 0.06 \cdot \mathrm{log} \frac{I_{2}}{I_{1}} \end{align*}
+
+Substituting our given diode voltage and current for \(V_{1}\) and \(I_{1}\) respectively, as well as our value for \(I_{D}\) as \(I_{2}\), we get a value \(V_{2}\) which we can then substitute back into our original KVL equation, and the process repeats until convergence.
+
+\section{The Code}
+
+\begin{lstlisting}
+#lang scheme
+ 
+(define (find-Vt temp)
+  (define boltzmann 1.38e-23) ; J/K
+  (define e-charge 1.60e-19) ; Coulombs/e-
+  (/ (* boltzmann (+ temp 273)) e-charge))
+ 
+(define (kvl-current Vdd R Vd)
+  (/ (- Vdd Vd) R))
+ 
+(define (log10 x)
+  (/ (log x) (log 10)))
+ 
+(define (diode-voltage Vt Vd-prev Id-prev Id-curr)
+  (+ Vd-prev (* 2.3 Vt (log10 (/ Id-curr Id-prev))))) 
+  
+(define (solve-iter Vt Vdd R Vd-prev Id-prev)
+  (cond ((< (abs (- (diode-voltage Vt Vd-prev Id-prev (kvl-current Vdd R Vd-prev)) Vd-prev)) 0.0001) Vd-prev)
+        (else 
+         (solve-iter Vt Vdd R (diode-voltage Vt Vd-prev Id-prev (kvl-current Vdd R Vd-prev)) (kvl-current Vdd R Vd-prev))) ))
+ 
+(define (solve Vdd R Vd-ref Id-ref temp) 
+  (solve-iter (find-Vt temp) Vdd R Vd-ref Id-ref))
+\end{lstlisting}
+ 
+
+\end{document}
