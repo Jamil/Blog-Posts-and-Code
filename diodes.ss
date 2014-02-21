@@ -7,7 +7,6 @@
 
 (define (kvl-current Vdd R Vd)
   (display (/ (- Vdd Vd) R))
-  (display "--curr\n")
   (/ (- Vdd Vd) R))
 
 (define (log10 x)
@@ -18,7 +17,6 @@
   
 (define (solve-iter Vt Vdd R Vd-prev Id-prev)
   (display (diode-voltage Vt Vd-prev Id-prev (kvl-current Vdd R Vd-prev)))
-  (display "--V\n")
   (cond ((< (abs (- (diode-voltage Vt Vd-prev Id-prev (kvl-current Vdd R Vd-prev)) Vd-prev)) 0.0001) Vd-prev)
         (else 
          (solve-iter Vt Vdd R (diode-voltage Vt Vd-prev Id-prev (kvl-current Vdd R Vd-prev)) (kvl-current Vdd R Vd-prev))) ))

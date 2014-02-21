@@ -40,5 +40,4 @@
                (var-integrate (cdr expr) var)))))
   (cond ((empty? var-list) expr)
         (else
-         (display expr)(display var-list)(display "\n")
          (integrate (var-integrate expr (car var-list)) (cdr var-list)))))
