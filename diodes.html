@@ -1,0 +1,16 @@
+<head>
+	<link rel="stylesheet" type="text/css" href="main.css">
+	<script type="text/javascript"
+   src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+</head>
+
+<h1>Iterative Analysis of a Simple Diode Circuit, Using the Exponential Model</h1>
+<p>Based on Example 4.4 from Microelectronics (Sedra)</p>
+<p><strong>Introduction</strong>: We need to find a diode current and voltage such that both the diode equation and Kirchhoff&rsquo;s Laws are not violated. We can do this by successively finding more accurate values for the diode voltage \(V_{D}\) and diode current \(i_{D}\). From Kirchhoff&rsquo;s Voltage Law:</p>
+<p>\( I_{D} = \frac{V_{DD} - V_{D}}{R} \)</p>
+<p>The iteration can begin with an assumed value for \(V_{D}\), which is dependent on the diode itself. If we know that the diode has, say, a current of 1&nbsp;mA at 0.7&nbsp;V, we might choose 0.7&nbsp;V as our starting point. After assuming a value for \(V_{D}\), we get a value for \(I_{D}\), which we can use in the diode equation:</p>
+<p>\( \begin{align*} V_{2} - V_{1} &amp;= 2.3 \cdot V_{T} \mathrm{log} \frac{I_{2}}{I_{1}} \cr V_{2} &amp;= V_{1} + 0.06 \cdot \mathrm{log} \frac{I_{2}}{I_{1}} \end{align*} \)</p>
+<p>Substituting our given diode voltage and current for \(V_{1}\) and \(I_{1}\) respectively, as well as our value for \(I_{D}\) as \(I_{2}\), we get a value \(V_{2}\) which we can then substitute back into our original KVL equation, and the process repeats until convergence.</p>
+<p>
+<script src="https://gist.github.com/Jamil/9101595.js" type="text/javascript"></script>
+</p>
