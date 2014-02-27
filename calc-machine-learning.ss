@@ -33,15 +33,16 @@
 
 ; (batch-lms-update x th y hyp)
 ; Need to call lms-prod-term for each training example
+; Keep track of state with var j (i.e. which th we're updating at the moment)
 (define (batch-lms-update X-TR TH Y-TR hyp)
-  (define (sum-tr Y-TR X-TR x-j hyp)
-    (cond ((empty? Y-TR) '())
-          ((empty? X-TR) '())
-          (else (lms-prod-term (car X-TR) TH (car Y-TR) x-j))))
+  ; For each th-j, we need to consider the entire set of training examples (X-TR)
   
-  (define (lms-help x th) ; x, th subsets of X, TH; xi is first element of subset x
-    (cond ((empty? th) '())
-          ((empty? x) '())
-          (else (cons (+ (car th) (* (sum-tr Y-TR X-TR (car x) hyp) learning-rate)) (lms-help (cdr x) (cdr th))))))
+  (define (sum-tr x-tr y-tr j) ; x-tr, y-tr are subsets of X-TR, Y-TR
+    (+ (lms-prod-term (car x-tr) TH (car y-tr) (nth j (car x-tr))) (sum-tr (cdr x-tr) (cdr y-tr) j)))
   
-  (lms-help X TH))
+  (define (lms-help j)
+    (cond ((>= j (x length)) '())
+          (else (cons (+ (nth j TH) (* (sum-tr X-TR Y-TR j) learning-rate)) (lms-help (+ j 1))))))
+  
+  (lms-help X TH 1))
+  
