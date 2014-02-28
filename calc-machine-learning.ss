@@ -1,4 +1,4 @@
-#lang racket
+#lang scheme
 
 (define tolerance 0.1)
 (define learning-rate 0.0001)
@@ -36,13 +36,25 @@
 ; Keep track of state with var j (i.e. which th we're updating at the moment)
 (define (batch-lms-update X-TR TH Y-TR hyp)
   ; For each th-j, we need to consider the entire set of training examples (X-TR)
-  
-  (define (sum-tr x-tr y-tr j) ; x-tr, y-tr are subsets of X-TR, Y-TR
-    (+ (lms-prod-term (car x-tr) TH (car y-tr) (nth j (car x-tr))) (sum-tr (cdr x-tr) (cdr y-tr) j)))
+  (define (sum-tr x-tr y-tr j TH) ; x-tr, y-tr are subsets of X-TR, Y-TR
+    (cond ((empty? x-tr) 0)
+          ((empty? y-tr) 0)
+          (else 
+    (+ (lms-prod-term (car x-tr) TH (car y-tr) (list-ref (car x-tr) j)) (sum-tr (cdr x-tr) (cdr y-tr) j TH)))))
   
   (define (lms-help j)
-    (cond ((>= j (x length)) '())
-          (else (cons (+ (nth j TH) (* (sum-tr X-TR Y-TR j) learning-rate)) (lms-help (+ j 1))))))
+    (cond ((>= j (length TH)) '())
+          (else (cons (+ (list-ref TH j) (* (sum-tr X-TR Y-TR j TH) learning-rate)) (lms-help (+ j 1))))))
   
-  (lms-help X TH 1))
+  (lms-help 0))
+
+; Initiates the batch gradient descent procedure; terminates when the cumulative error is below the tolerance
+(define (batch-desc X-TR TH Y-TR hyp)
+  (define (sum-errs j)
+    (cond ((>= j (length X-TR)) 0)
+          ((>= j (length Y-TR)) 0)
+          (else
+           (+ (abs (- (list-ref Y-TR j) (hyp (list-ref X-TR j) TH))) (sum-errs (+ 1 j))))))
   
+  (cond ((< (sum-errs 0) tolerance) TH)
+        (else (batch-desc X-TR (batch-lms-update X-TR TH Y-TR hyp) Y-TR hyp))))
