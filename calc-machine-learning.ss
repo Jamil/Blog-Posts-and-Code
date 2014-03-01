@@ -1,5 +1,12 @@
 #lang scheme
 
+; EXAMPLE:
+; (batch-desc 
+;  '((1 1 1 1) (1 2 2 2) (1 3 3 3) (1 4 4 4)) '(0 0 0 0) '(9 18 27 36) hyp) 
+; Training examples are (1 1 1) => 9, (2 2 2) => 18, (3 3 3) => 27, (4 4 4) => 36
+; Hypothesis generated via linear regression (i.e. x*transpose(theta))
+; Thetas initialized to the zero vector
+
 (define tolerance 0.1)
 (define learning-rate 0.0001)
 
