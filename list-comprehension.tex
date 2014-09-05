@@ -10,7 +10,7 @@
 \maketitle
 
 \section{Introduction}
-In high school, you probably came across something called \textit{set notation}. It's a useful invention related to the branch of mathematics that deals with, of course, these ``objects'' called \textit{sets}. It turns out that some of the notation and concept related ot set theory can be extremely useful in programming. Indeed, most languages have some sort of attempt at imitating the basic notation of sets in order to allow you to write simple, readable, and powerful code.
+In high school, you probably came across something called \textit{set notation}. It's a useful invention related to the branch of mathematics that deals with, of course, these ``objects'' called \textit{sets}. It turns out that some of the notation and concepts related to set theory can be extremely useful in programming. Indeed, most languages have some sort of attempt at imitating the basic notation of sets in order to allow you to write simple, readable, and powerful code.
 
 \section{A Simple Problem}
 Let's say I asked you to give me a list of the numbers, from 1 to 1000, that are divisible by 12 and 13. If you were to write a program to do this, it's most likely that you would come up with something along the lines of:
@@ -32,7 +32,15 @@ Some programming languages, such as Haskell, have employed this syntax of list c
 Although this may seem obfuscating at first, reading it aloud is like plain and simple English: ``x, such that x is in between one and a thousand, that x mod 12 is 0, and that x mod 13 is 0''. This is, in fact, just a repetition of the original problem. In Haskell, this would be something like:
 
 \begin{verbatim}
-[x | x <- [1..1000], x % 12 == 0, x % 13 == 0] 
+[x | x <- [1..1000], x `mod` 12 == 0, x `mod` 13 == 0] 
 \end{verbatim}
+
+You can see how similar this is to the set notation we saw above! Also note the backticks surrounding the \textit{mod}s; these are to convert a prefix operator to an infix one (without them, you would write \texit{mod x 12}. You can try this expression out in \textbf{ghci}, the Haskell interpreter, to see what you get. It should be this list:
+
+\begin{verbatim}
+[156,312,468,624,780,936]
+\end{verbatim}
+
+At this point, you may have doubts about the utility of this notation. It may save you some time, but is it really \textit{that} useful?
 
 \end{document}
