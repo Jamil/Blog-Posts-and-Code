@@ -1,0 +1,66 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{listings}
+
+
+\lstset{breaklines=true}
+
+
+% Text layout
+\topmargin 0.0cm
+\oddsidemargin 0.5cm
+\evensidemargin 0.5cm
+\textwidth 16cm 
+\textheight 21cm
+
+\begin{document}
+% Leave date blank
+\date{}
+
+{\Large
+\textbf{Examining the 2-SAT Problem in LISP}}
+
+\section{Introduction}
+
+One of the most famous NP-complete problems is the Boolean Satisfiability Problem, often just abbreviated to SAT. The objective is simply to find assignments that make a boolean expression true. For example, let's take the trivial expression \(a \vee b\). To make this true, at least either \(a\) or \(b\) must be true. For \(a \wedge b\) to be true, both \(a\) and \(b\) must be true. In both cases, the problem is satisfiable; that is, there exists an assignment for each variable that makes the expression true. Such an assignment may not exist. Consider another simple example:
+
+\begin{equation}
+(a \wedge b) \wedge (\neg a \vee \neg b)
+\end{equation}
+
+In this case, both \(a\) and \(b\) must be true, otherwise the first predicate (and therefore the entire expression) would evaluate to false.  However, either \(\neg a\) or \(\neg b\) must be true, otherwise the second predicate (and therefore the entire expression) would evaluate to false. There is no way you could assign \(a\) and \(b\) to make this expression true; the problem is therefore unsatisfiable.\\
+
+Given these simple problems, you may think that the SAT problem is relatively simple and trivial to solve. However, most problems quickly become intractable for even a relatively small number of variables.\\
+
+In this post, we'll take a look at problems in the Conjunctive Normal Form (CNF), which is another name for the Product of Sum (POS) form. Let's say we have \(n\) variables \(x_{i}\), and \(m\) predicates \(P_{i}\) of the form \((x_{j} \vee x_{k} \vee \hdots \vee x_{l})\) where \(j\), \(k\), and \(l\) are some arbitrary numbers within \(0\) to \(n\). A boolean expression in CNF form would look like:
+
+\begin{equation}
+P_{0} \wedge P_{1} \wedge \hdots \wedge P_{m}
+\end{equation}
+
+\(n\)-SAT (most commonly, where \(n = 2\) or \(n = 3\)) describes the problem where each predicate has exactly \(n\) variables. An example for 2-SAT would be Equation (1), but with the first predicate being OR instead of AND:
+
+\begin{equation}
+(a \vee b) \wedge (\neg a \vee \neg b)
+\end{equation}
+
+\section{2-SAT}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}
